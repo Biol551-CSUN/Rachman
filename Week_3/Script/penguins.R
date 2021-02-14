@@ -1,6 +1,6 @@
-###this is making a ggplot
+###this is making a penguin data
 ###Date created: 2/8/2021
-###Creator: Rchard Rachman
+###Creator: Rchard Rachman and group
 
 ####################################
 
@@ -22,33 +22,17 @@ view(penguins)
 
 
 ###Graph the data set
-ggplot(data=penguins,
-       mapping= aes(x=bill_depth_mm,
-                    y=bill_length_mm,
-                    group=species,
-                    color=species))+
-  geom_point()+
-  geom_smooth(method="lm")+
-  labs(x="Bill depth (mm)",
-       y="Bill length (mm)")+
-  scale_color_manual(values = cal_palette("sierra1")) +
-  theme_bw() +
- theme_classic()+
-  theme(axis.title = element_text(size = 20,
-         color = "red"),
-        panel.background = element_rect(fill = "linen"))+
-   ggsave(here("Week_3","Output","penguin.png"),
-          width = 7, height = 5) 
-?theme
-ggsave
 
+##Change the name of the penguins in the data set
 
 penguins <- penguins %>% mutate(sex = fct_recode(sex, 
                                                  "Male" = "male", 
                                                  "Female" = "female"))
 
+
 penguins %>% filter(sex == "Male" | sex == "Female") %>% 
   filter(species == "Adelie") %>% 
+  ## seperate males and females
   ggplot(aes(x=sex, y=body_mass_g, fill=sex)) +
   geom_boxplot() +
   scale_fill_viridis(discrete = TRUE, alpha=0.6) +
@@ -63,4 +47,4 @@ penguins %>% filter(sex == "Male" | sex == "Female") %>%
        title="Adelie Penguins Body Mass by Island")
 
        
-
+## I'm not sure if I can put hashtags and comments betwix my ggplot directions, but I figure I can do it after
