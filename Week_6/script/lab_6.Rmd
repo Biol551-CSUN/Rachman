@@ -1,0 +1,73 @@
+---
+title: "Week 6 Assignment"
+author: "Richard Rachman"
+date: "2021/03/03"
+output:
+  tufte::tufte_html:
+  html_document:
+    toc: yes
+ 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+
+
+
+## **Libraries**
+```{r}
+library(palmerpenguins)
+library(tidyverse)
+library(here)
+library(kableExtra)
+library(tufte)
+library(viridis)
+```
+
+### *Notes for lab*
+
+* Take any of the data sheets you have already worked with in class and create at least one table and one figure in an Rmarkdown file.  
+* Create the most beautiful RMarkdown output you can during lab hours in either an html, github doc, or pdf format.    
+* Make sure you have headings with clear explanations of what you are doing.    
+- Practice using markdown formatting with bold, italics, and lists.  
+* Make sure your outputs and scripts are saved in the appropriate folders. Keep proper coding etiquette (figures need to be pub quality as usual).
+
+## **Data**
+
+```{r}
+View(penguins)
+```
+
+## **Script**
+### We are first going to change the name of the sexes in the data, then seperate males and females to get our desired graph for specifically Adelie penguins. 
+
+```{r}
+
+
+penguins <- penguins %>% mutate(sex = fct_recode(sex, 
+                                                 "Male" = "male", 
+                                                 "Female" = "female"))
+
+penguins %>% filter(sex == "Male" | sex == "Female") %>% 
+  filter(species == "Adelie") %>% 
+  ## Separate males and females
+  ggplot(aes(x=sex, y=body_mass_g, fill=sex)) +
+  geom_boxplot() +
+  scale_fill_viridis(discrete = TRUE, alpha=0.6) +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme_bw() +
+  theme(strip.background = element_rect(fill = "white", color = "white"),
+        legend.position="none",
+        plot.title = element_text(size=20)
+  ) +
+  facet_grid(~island) + 
+  labs(y="Body Mass (g)", x="Sex", 
+       title="Adelie Penguins Body Mass by Island")
+```
+## Save file
+
+
