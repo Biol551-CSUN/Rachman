@@ -1,0 +1,53 @@
+---
+title: "Function"
+author: "Richard Rachman"
+date: "3/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# **Libraries**
+
+```{r}
+library(tidyverse)
+library(here)
+library(PNWColors)
+```
+
+# Data/Function
+
+```{r}
+here("Week_8", "data","chemicaldata_maunalua.csv")
+chem<- read.csv(here("Week_8", "data","chemicaldata_maunalua.csv"))
+## Making the function for temp
+celsius_to_farenheit <- function(Temp_C) { 
+  temp_F <- ((Temp_C  * 9/5) + 32)
+  return(temp_F)
+}
+## change the celsius (ew, celisius), in to Fahrenheit
+view(chem)
+temp<- celsius_to_farenheit(chem$Temp_in)
+
+```
+
+# Code
+
+```{r}
+##plot the seasons and the new color function
+myplot<-function(data, x, y,color){
+pal<-pnw_palette("Lake",3, type = "discrete") # my color palette 
+
+ggplot(data, aes(x = {{x}}, y ={{y}}, color={{color}}))+
+  geom_point()+
+  geom_smooth(method = "lm")+ # add a lcolor "lm")+ # add a linear model
+  scale_color_manual(values=pal)+   # use pretty colors and change the legend title
+  theme_bw()
+} 
+myplot(chem, Season, temp, color=Site)+
+  labs(y="Temp (F)")
+
+## Seasons are different!
+```
