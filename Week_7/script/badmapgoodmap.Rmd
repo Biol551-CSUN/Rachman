@@ -1,0 +1,122 @@
+---
+title: "Bad map/good map"
+author: "Richard Rachman"
+date: "3/24/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# libraries
+
+```{r}
+library(sf)
+library(fs)
+library(magrittr)
+library(leaflet)
+library(here)
+library(tidyverse)
+library(maps)
+library(mapproj)
+library("ggplot2")
+library("sf")
+library("rnaturalearth")
+library("rnaturalearthdata")
+library("tools")
+library("rgeos")
+library("lwgeom")
+library("ggspatial")
+library(rgdal)
+library(raster)
+library(magick)
+```
+
+# data
+
+```{r}
+smmnra<- st_read(here("Week_7","data","SMMNRA.kml"))
+plot(smmnra)
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+class(world)
+
+states <- st_as_sf(map("state", plot = FALSE, fill = TRUE))
+head(states)
+
+states <- cbind(states, st_coordinates(st_centroid(states)))
+
+states$ID <- toTitleCase(states$ID)
+head(states)
+
+counties <- st_as_sf(map("county", plot = FALSE, fill = TRUE))
+counties <- subset(counties, grepl("california", counties$ID))
+counties$area <- as.numeric(st_area(counties))
+head(counties)
+
+# state projection 2229
+
+losangeles_geo = st_transform(counties, 2229)
+smmnra_geo= st_transform(smmnra, 2229)
+st_is_longlat(losangeles_geo)
+# los angeles 6423 espg
+losangeles = data.frame(x = 385000, y = 3768645) %>% 
+  st_as_sf(coords = 1:2, crs = 6423)
+st_crs(losangeles)
+smmnra = st_transform(smmnra_geo, 6423)
+losangeles_geo = st_transform(counties, 6423)
+st_distance(smmnra, losangeles_geo)
+```
+
+# script
+
+# good map
+
+```{r}
+
+
+ggplot(data = world ) +
+    geom_sf()+ 
+            geom_sf(data= smmnra, fill= "dark green")+
+    coord_sf(xlim = c(-119.15, -118.3), ylim = c(33.95, 34.25), expand = FALSE)+
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+    annotation_scale(location = "bl", width_hint = 0.4) +
+    annotation_north_arrow(location = "bl", which_north = "true", 
+        pad_x = unit(4.5, "in"), pad_y = unit(1.8, "in"),
+        style = north_arrow_fancy_orienteering) +
+    xlab("Longitude") + ylab("Latitude") +
+    ggtitle("Santa Monica Mountains National Recreation Area", subtitle = "County Lines for Ventura and Los Angeles County)") +
+    theme(panel.grid.major = element_line(color = gray(0.8), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue"))
+
+
+```
+
+![](http://127.0.0.1:31379/chunk_output/8419F95638E6F0C5/33338730/cv8qz0544e509/000015.png?resize=2)
+
+# bad map
+
+```{r}
+ggplot(data = counties) +
+    geom_sf()+ 
+            geom_sf(data= smmnra, fill= "navy blue")+
+    coord_sf(xlim = c(-128, -118.3), ylim = c(33.95, 37), expand = FALSE)+
+  scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+    annotation_scale(location = "bl", width_hint = 0.4) +
+    annotation_north_arrow(location = "bl", which_north = "true", 
+        pad_x = unit(2, "in"), pad_y = unit(.4, "in"),
+        style = north_arrow_fancy_orienteering) +
+    xlab("long") + ylab("lat") +
+    ggtitle("SMMNRA") +
+    theme(panel.grid.major = element_line(color = gray(0.8), linetype = "solid", 
+        size = 3), panel.background = element_rect(fill = "yellow"))+
+  ggsave(here("Week_7","output","badmap.png"))
+penplot<-image_read(here("Week_7","output","badmap.png"))
+penguin<-image_read("https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Burning_bush.png.jpg/800px-Burning_bush.png")
+out <- image_composite(penplot, penguin, offset = "+900+300")
+out
+
+```
