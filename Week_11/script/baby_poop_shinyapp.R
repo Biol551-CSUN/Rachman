@@ -1,3 +1,7 @@
+---
+output: html_document
+runtime: shiny
+---
 # Baby Poop
 
 library(tidyverse)
